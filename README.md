@@ -25,5 +25,6 @@ TeX editors. To build using GNU make:
 $ make
 ```
 
+[r]: https://www.sigarch.org/simd-instructions-considered-harmful/
 [p]: https://penzn.github.io/wasm-long-vectors/
 [h]: https://github.com/google/highway
