@@ -7,14 +7,25 @@ presented at a Wasm SIMD sync call at 2019-11-06.
 
 [View or download][p] prebuilt PDF.
 
-## Overview
+## Scope
 
-The proposal extends existing SIMD proposal with length-agnostic operation to
-allow cross-platform SIMD operations.
+Provide length-agnostic operations to support various SIMD hardware.
 
-The instruction set extension draws some inspiration from [RISC-V][r] and
-[Highway][h], in particular latter's success in defining performant
-cross-platform SIMD wrappers.
+While true vector instruction sets are an interesting topic, they are not yet
+widespread enough in consumer hardware to warrant a WebAssembly proposal.
+Should they become widespread, this can be extended to support them.
+
+This proposal is also _not_ about modifying existing WebAssembly SIMD proposal
+- `simd128` is a very mature proposal that inspired this work, but it has uses
+and implementations and it would not be worth holding it up to test out an
+early-stage idea.
+
+## Existing solutions
+
+Runtime SIMD wrappers:
+
+- [Highway][h]
+- [System.Numerics.Vector][v] in .NET
 
 ## Building slides
 
@@ -25,6 +36,6 @@ TeX editors. To build using GNU make:
 $ make
 ```
 
-[r]: https://www.sigarch.org/simd-instructions-considered-harmful/
+[v]: https://docs.microsoft.com/en-us/dotnet/api/system.numerics.vector
 [p]: https://penzn.github.io/wasm-long-vectors/
 [h]: https://github.com/google/highway

@@ -1,30 +1,52 @@
 \documentclass[t,aspectratio=169, xcolor={table}]{beamer}
 \usepackage{listings}
-\title{Beyond 128-bit SIMD in WebAssembly}
+\usepackage{hyperref}
+\title{Long vectors for WebAssembly}
 \author{Petr Penzin}
 \institute{Intel Corporation}
-\date{November 6, 2019}
+\date{\today}
 \begin{document}
 \begin{frame}
   \titlepage
 \end{frame}
 \begin{frame}
-\frametitle{Agenda}
-Discuss next steps in evolution of Wasm SIMD instruction set.
+\frametitle{Background}
+  \begin{itemize}
+  \item A number of discussions in the context of Wasm SIMD proposal regarding operations longer than 128-bit\footnotemark[1]\footnotemark[2]
+  \item Existing runtime solutions
+    \begin{itemize}
+    \item \href{https://github.com/google/highway}{Highway}
+    \item \href{https://docs.microsoft.com/en-us/dotnet/api/system.numerics.vector}{System.Numerics.Vector} in .NET
+    \end{itemize}
+  \end{itemize}
+  \footnotetext[1]{
+    Github issue \href{https://github.com/WebAssembly/simd/issues/29}{\#29}, and a version of this deck has been presented on December 6, 2019
+  }
+  \footnotetext[2]{
+    \href{https://github.com/WebAssembly/simd/issues/210}{\#210}, \href{https://github.com/WebAssembly/simd/issues/212}{\#212}
+  }
 \end{frame}
 \begin{frame}
-\frametitle{Proposal summary}
+\frametitle{Scope}
+  This proposal is about:
+
   \begin{itemize}
-  \item Add vectors operations analogous, at lane level, to existing Wasm SIMD operations, but agnostic of the vector length
-  \item Vector length defined by architecture and set by the runtime
+  \item Length-agnostic vector operations which bridge the gap between hardware SIMD implementations
+  \end{itemize}
+
+  Out of scope:
+
+  \begin{itemize}
+  \item Supporting vector instruction sets, such as SVE (though it can in the future)
+  \item Changing current Wasm SIMD proposal
   \end{itemize}
 \end{frame}
 \begin{frame}
-\frametitle{Design Constraints}
+\frametitle{Design Goals}
   \begin{itemize}
   \item Same Wasm binary to run all platforms
   \item Unambiguous instruction selection
-  \item Backwards compatibility with existing Wasm SIMD instruction set % FIXME dilution of orginal "no regressions" goal?
+  \item Easy transition from Wasm SIMD instruction set
   \end{itemize}
 \end{frame}
 \begin{frame}
@@ -42,9 +64,19 @@ Discuss next steps in evolution of Wasm SIMD instruction set.
   \begin{itemize}
   \item Loads and stores work with consecutive memory locations, like \textit{simd128} loads and stores
   \item Maximum vector length is set to match the hardware by runtime at startup
-  \item New instructions to control the width of the vector
   \end{itemize}
 \end{frame}
+%\begin{frame}
+%\frametitle{Vector length}
+%  For a vector operation length can be:
+%  \begin{enumerate}
+%  \item Variable - number of elements processed determined when operation executes
+%  \item Compile time constant - set when compiler runs, for example as in native SIMD compilation
+%  \item Run time constant - set when runtime starts, constant for individual operations
+%  \end{enumerate}
+%
+%  This proposal falls into run time constant category, which leaves room for compile-time vectorization algorithms, but still allows variety of SIMD instruction sets to be invoked at runtime.
+%\end{frame}
 \begin{frame}
 \frametitle{Types and instructions}
 New types and instructions
@@ -98,11 +130,19 @@ Vector addition, $c = a + b$, $sz$ is the size
   \end{itemize}
 \end{frame}
 \begin{frame}
-\frametitle{Extension: arbitrary length}
-  Support for size manipulation not multiple of maximum length, to educe WebAssembly and native instruction count.
+\frametitle{Poll}
+Support phase 0 proposal for long vectors?
 \end{frame}
 \begin{frame}
-\frametitle{Additional instructions}
+\frametitle{~}
+\huge{Thank you}
+\end{frame}
+\begin{frame}
+\frametitle{Backup: Pure vectors}
+  Proposal can be extended to support pure vectors - with user-visible length, but that would be challenging to execute on existing hardware.
+
+  It can be done by adding the following instruction:
+
   \begin{itemize}
   \item $vec.<type>.set\_length$ -- set number of elements in corresponding vector type
   \item[] Takes an unsigned argument, allowed use smaller number per runtime's view of the hardware
@@ -129,15 +169,17 @@ local $len i32
 \end{frame}
 \begin{frame}
 \frametitle{Code generation}
-  Relatively straightforward for vector instruction sets and SIMD predication
+  Advantages:
   \begin{itemize}
-  \item Simple mask generation, code generation changes only needed for loads and stores
-  \item Straight-forward code generation for vector instruction sets
+  \item Reduced Wasm instruction count
+  \item Some alignment with SIMD instruction sets supporting masking
   \end{itemize}
-\end{frame}
-\begin{frame}
-\frametitle{~}
-\huge{Thank you}
+  Disadvantages:
+  \begin{itemize}
+  \item High cost for SIMD instruction sets without masking
+  \item Managing global state 
+  \end{itemize}
+  This can be seen as a future or experimental option, but it is not ready to be prototyped on widely available hardware.
 \end{frame}
 \end{document}
 
