@@ -10,6 +10,22 @@
   \titlepage
 \end{frame}
 \begin{frame}
+\frametitle{Agenda}
+
+Possible future extension:
+
+  \begin{itemize}
+  \item Vector operations with runtime-defined length
+  \end{itemize}
+
+Out of scope:
+
+  \begin{itemize}
+  \item Changing current SIMD proposal
+  \item Native vector instruction sets, such as SVE or RISC-V (future work?)
+  \end{itemize}
+\end{frame}
+\begin{frame}
 \frametitle{Background}
   \begin{itemize}
   \item A number of discussions in the context of Wasm SIMD proposal regarding operations longer than 128-bit\footnotemark[1]\footnotemark[2]
@@ -25,21 +41,6 @@
   \footnotetext[2]{
     \href{https://github.com/WebAssembly/simd/issues/210}{\#210}, \href{https://github.com/WebAssembly/simd/issues/212}{\#212}
   }
-\end{frame}
-\begin{frame}
-\frametitle{Scope}
-  This proposal is about:
-
-  \begin{itemize}
-  \item Length-agnostic vector operations which bridge the gap between hardware SIMD implementations
-  \end{itemize}
-
-  Out of scope:
-
-  \begin{itemize}
-  \item Supporting vector instruction sets, such as SVE (though it can in the future)
-  \item Changing current Wasm SIMD proposal
-  \end{itemize}
 \end{frame}
 \begin{frame}
 \frametitle{Design Goals}
@@ -66,17 +67,6 @@
   \item Maximum vector length is set to match the hardware by runtime at startup
   \end{itemize}
 \end{frame}
-%\begin{frame}
-%\frametitle{Vector length}
-%  For a vector operation length can be:
-%  \begin{enumerate}
-%  \item Variable - number of elements processed determined when operation executes
-%  \item Compile time constant - set when compiler runs, for example as in native SIMD compilation
-%  \item Run time constant - set when runtime starts, constant for individual operations
-%  \end{enumerate}
-%
-%  This proposal falls into run time constant category, which leaves room for compile-time vectorization algorithms, but still allows variety of SIMD instruction sets to be invoked at runtime.
-%\end{frame}
 \begin{frame}
 \frametitle{Types and instructions}
 New types and instructions
@@ -123,13 +113,6 @@ Vector addition, $c = a + b$, $sz$ is the size
   \end{itemize}
 \end{frame}
 \begin{frame}
-\frametitle{Comparison against current SIMD proposal}
-  \begin{itemize}
-  \item At 128-bit vector width operations are identical to current Wasm SIMD operations with sole exception of lane shuffle
-  \item Transparent to developer and toolchain
-  \end{itemize}
-\end{frame}
-\begin{frame}
 \frametitle{Poll}
 Support phase 0 proposal for long vectors?
 \end{frame}
@@ -138,7 +121,7 @@ Support phase 0 proposal for long vectors?
 \huge{Thank you}
 \end{frame}
 \begin{frame}
-\frametitle{Backup: Pure vectors}
+\frametitle{Appendix A: Pure vectors}
   Proposal can be extended to support pure vectors - with user-visible length, but that would be challenging to execute on existing hardware.
 
   It can be done by adding the following instruction:
@@ -180,6 +163,52 @@ local $len i32
   \item Managing global state 
   \end{itemize}
   This can be seen as a future or experimental option, but it is not ready to be prototyped on widely available hardware.
+\end{frame}
+\begin{frame}
+\frametitle{Appendix B: Dynamic vector length}
+  Different approaches to setting vector length:
+  \begin{enumerate}
+  \item Compile time constant - set when compiler runs, for example as in native SIMD compilation
+  \item Variable - number of elements processed determined when operation executes
+  \item Run time constant - set when runtime starts, constant for individual operations
+  \end{enumerate}
+\end{frame}
+\begin{frame}
+\frametitle{Compile time constant vector length}
+  \begin{itemize}
+  \item The most "static" instruction selection
+    \begin{itemize}
+    \item nonetheless, some platform-dependent code generation is required
+    \end{itemize}
+  \item Scaling the length at runtime
+    \begin{itemize}
+    \item scaling down results in "double pumping"
+    \item scaling up is particularly challenging
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+\begin{frame}
+\frametitle{Variable vector length}
+  \begin{itemize}
+  \item The most compact code for loops
+    \begin{itemize}
+    \item nonetheless, some platform-dependent code generation is required
+    \end{itemize}
+  \item Mutable global state
+  \item Hardware support is sparse
+    \begin{itemize}
+    \item masking SIMD operations can be used
+    \item vector instruction sets are a good fit, but are still rare
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+\begin{frame}
+\frametitle{Runtime constant vector length}
+  \begin{itemize}
+  \item Vector length is a runtime constant
+  \item Support various fixed width SIMD architectures
+  \item Straight-forward instruction selection
+  \end{itemize}
 \end{frame}
 \end{document}
 
