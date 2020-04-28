@@ -128,7 +128,7 @@ Support phase 0 proposal for long vectors?
 
   \begin{itemize}
   \item $vec.<type>.set\_length$ -- set number of elements in corresponding vector type
-  \item[] Takes an unsigned argument, allowed use smaller number per runtime's view of the hardware
+  \item[] Sets vector length to minimum between its argument and length dictated by hardware, returns that value.
   \end{itemize}
 \end{frame}
 \begin{frame}[containsverbatim]
