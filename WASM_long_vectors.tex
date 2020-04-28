@@ -12,21 +12,21 @@
 \begin{frame}
 \frametitle{Agenda}
 
-Possible future extension:
-
   \begin{itemize}
   \item Vector operations with runtime-defined length
+    % Note: Common denominator between SIMD instruction sets with different vector length
+    % Note: Separate from current Wasm SIMD proposal
+    \begin{itemize}
+    \item Motivation
+    \item Design Goals
+    \item Proposal
+    \end{itemize}
+  \item Poll
   \end{itemize}
 
-Out of scope:
-
-  \begin{itemize}
-  \item Changing current SIMD proposal
-  \item Native vector instruction sets, such as SVE or RISC-V (future work?)
-  \end{itemize}
 \end{frame}
 \begin{frame}
-\frametitle{Background}
+\frametitle{Motivation}
   \begin{itemize}
   \item A number of discussions in the context of Wasm SIMD proposal regarding operations longer than 128-bit\footnotemark[1]\footnotemark[2]
   \item Existing runtime solutions
@@ -92,7 +92,7 @@ Instructions extending existing operations in WebAssembly SIMD proposal
 Vector addition, $c = a + b$, $sz$ is the size
 \begin{lstlisting}
 (block $loop
-  (block $loop_top
+  (loop $loop_top
     (br_if $loop (i32.lt (get_local $sz) (vec.f32.length)))
     vec.f32.load (get_local $a)
     vec.f32.load (get_local $b)
@@ -137,7 +137,7 @@ Vector addition, $c = a + b$, $sz$ is the size
 \begin{lstlisting}
 local $len i32
 (block $loop
-  (block $loop_top
+  (loop $loop_top
     (br_if $loop (i32.eq (get_local $sz) (i32.const 0)))
     (set_local $len (vec.f32.set_length (get_local $sz)))
     vec.f32.load (get_local $a)
